@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Line Module Chatbot (Demo)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        .chat-container {
+            width: 100%;
+            max-width: 720px;
+            height: 78vh;
+            display: flex;
+            flex-direction: column;
+            background-color: #ffffff;
+            border-radius: 1.25rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        .chat-header {
+            background-color: #66c6ed;
+            color: #ffffff;
+            padding: 1rem 1.25rem;
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: 700;
+            border-top-left-radius: 1.25rem;
+            border-top-right-radius: 1.25rem;
+        }
+        .chat-messages {
+            flex-grow: 1;
+            padding: 1.25rem;
+            overflow-y: auto;
+            display:flex;
+            flex-direction:column;
+            gap:0.75rem;
+        }
+        .message {
+            max-width: 85%;
+            padding: 0.75rem 1rem;
+            border-radius: 0.9rem;
+            line-height:1.4;
+            white-space: pre-wrap;
+        }
+        .user-message {
+            background-color: #d1e0f6;
+            color: #0f172a;
+            align-self: flex-end;
+            border-bottom-right-radius: 0.25rem;
+        }
+        .ai-message {
+            background-color: #eef2ff;
+            color: #0f172a;
+            align-self: flex-start;
+            border-bottom-left-radius: 0.25rem;
+        }
+        .chat-input {
+            display:flex;
+            gap:0.5rem;
+            padding: 0.9rem;
+            background-color: #f3f4f6;
+            align-items:center;
+        }
+        .chat-input input {
+            flex-grow:1;
+            border:1px solid #e5e7eb;
+            border-radius:9999px;
+            padding:0.6rem 1rem;
+            font-size:1rem;
+        }
+        .chat-input button {
+            background-color:#66c6ed;
+            color:#fff;
+            border-radius:9999px;
+            padding:0.6rem 1rem;
+            font-weight:600;
+            border:none;
+            cursor:pointer;
+        }
+        .chat-input button:hover { filter:brightness(0.95); }
+        .small-note { font-size:0.85rem; color:#374151; padding:0.5rem 1rem; }
+        .loading { text-align:center; padding:0.5rem; color:#6b7280; }
+    </style>
+</head>
+<body>
+    <div class="chat-container" role="region" aria-label="Line Module Chatbot">
+        <div class="chat-header">Line Module Art Tutor (Demo)</div>
+
+        <div class="chat-messages" id="chatMessages" aria-live="polite">
+            <div class="message ai-message">Hello! I'm here to help you with the Line Module. Ask about the Line Rug project, the quiz, or how to submit your work. (This file runs in demo mode if you don't supply an API key.)</div>
+        </div>
+
+        <div class="chat-input" role="form" aria-label="Chat input area">
+            <input id="userInput" type="text" placeholder="Ask a question... (try: How do I do the assignment?)" />
+            <button id="sendBtn" aria-label="Send message">Send</button>
+        </div>
+
+        <div id="loadingIndicator" class="loading" style="display:none;">Thinking…</div>
+        <div class="small-note">Tip: If you plan to connect this to Gemini, deploy this file on a server (Netlify/Replit/GitHub Pages) and add a secure backend to keep your API key private.</div>
+    </div>
+
+    <script>
+    (function(){
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const chatMessages = document.getElementById('chatMessages');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+
+        // Replace with your hosted Gemini endpoint and set the API key in a secure backend.
+        const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent';
+        const API_KEY = ''; // <-- Leave empty locally. DO NOT put a secret key in a public file.
+
+        // Course content (kept here so the demo replies can reference it).
+        const courseContent = `Module Overview: The Element of LINE
+
+We need to learn the Elements of Art and how to use them effectively. We will begin with the most basic Element, LINE, and learn some vocabulary words. The project will involve using basic materials to gain practice.
+
+(Shortened for demo — the real lesson content should be pasted here when you deploy.)`;
+
+        // Simple state so the demo responder can follow short flows.
+        let state = { awaiting: null }; // awaiting: null | 'work-method' | 'submit-method' | 'submit-device' 
+
+        function addMessage(text, sender){
+            const d = document.createElement('div');
+            d.className = 'message ' + (sender === 'user' ? 'user-message' : 'ai-message');
+            d.innerText = text;
+            chatMessages.appendChild(d);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Minimal rule-based demo responder (works offline/local) to let you test the chatbot UI.
+        function demoResponder(text){
+            const t = text.trim().toLowerCase();
+
+            // If we're waiting for a specific reply, handle that first.
+            if(state.awaiting === 'work-method'){
+                state.awaiting = null;
+                if(t.includes('digit') || t.includes('computer') || t.includes('sketch') || t.includes('digital')){
+                    return `Awesome! You can follow the digital steps for the Line Rug on Sketchpad:
+1. Go to sketch.io and choose 'New' — set canvas to 11 x 8.5 inches (landscape).
+2. Use a pen/brush tool; practice zigzag, wavy, dotted, dashed, spiral lines. Hold Shift for straight lines.
+3. Paint between your lines with the brush and adjust transparency for washes.
+4. Organize layers: move paint layers behind line layers.
+5. Export as JPEG and upload to Canvas. Need the full export/upload steps? Ask "how do I submit?"`;
+                } else {
+                    return `Awesome! You can use paper and drawing tools like pencils, markers, crayons, or pens. Try to show a variety of lines (wavy, zigzag, dotted). Steps:
+1. Draw a rug outline (rectangle or shape).
+2. Fill the inside with different line patterns.
+3. Color each section.
+4. Add a frame border.
+If you want submission steps, ask "how do I submit?"`;
+                }
+            }
+
+            if(state.awaiting === 'submit-method'){
+                state.awaiting = 'submit-device';
+                // expecting "i made this on paper" or "i made this digitally"
+                if(t.includes('paper')){
+                    return `Great! And to help me give you the best steps, can you tell me what kind of device you'll use to take a picture of your artwork? (phone, tablet, or computer)`;
+                } else {
+                    return `Great — digital! Do you want instructions for exporting your file (Sketchpad) or taking a screenshot? Also tell me what device you're using: phone, tablet, or computer.`;
+                }
+            }
+
+            if(state.awaiting === 'submit-device'){
+                state.awaiting = null;
+                if(t.includes('phone') || t.includes('tablet')){
+                    return `Awesome! Here's how to submit from a phone/tablet:
+1. Take a clear photo or screenshot of your Line Rug.
+2. Open the Canvas app or website and tap "Start Assignment."
+3. Tap the photo icon, choose the image, then tap "Submit Assignment."`;
+                } else {
+                    return `Great! Here's how to submit from a computer:
+1. Take a photo with a webcam or take a screenshot (Mac: Cmd+Shift+4; Windows: Win+Shift+S; Chromebook: Ctrl+Show windows).
+2. Go to Canvas, click "Start Assignment" and find the photo upload area.
+3. Click the photo icon → upload → Submit.`;
+                }
+            }
+
+            // General keyword-based replies
+            if(t.includes('how') && (t.includes('do') && t.includes('assignment') || t.includes('assignment'))){
+                state.awaiting = 'work-method';
+                return `Will you be working digitally or traditionally (on paper)?`;
+            }
+
+            if(t.includes('submit') || t.includes('turn in') || t.includes('turn-in')){
+                state.awaiting = 'submit-method';
+                return `To help me find the right instructions, please reply by saying "I made this on paper" or "I made this digitally."`;
+            }
+
+            if(t.includes('digital') || t.includes('digitally') && t.includes('submit')){
+                state.awaiting = 'submit-device';
+                return `If you made this digitally, tell me what device you're using (phone, tablet, computer) so I can give the right steps.`;
+            }
+
+            if(t.includes('quiz') || t.includes('test') || t.includes('answers')){
+                return `I can't give you direct quiz answers, but I can help you study. Try telling me which term you are unsure about (e.g., "What's hatching?") and I'll ask you a question to practice.`;
+            }
+
+            if(t.includes('line') && (t.includes('what') || t.includes('define') || t.includes('meaning'))){
+                return `A line is a dot that went for a walk (Paul Klee). Lines can be thick, thin, curvy, straight, zigzag, or spiral. They can show shape, movement, pattern, and value (hatching/crosshatching).`;
+            }
+
+            // If none matched, ask a helpful starter question
+            return `I can help with the Line Rug project, the quiz, or submission steps. Quick starter: Will you be working digitally or traditionally (on paper)?`;
+        }
+
+        async function sendToGemini(userText){
+            // NOTE: This minimal example does a direct browser call — in production you must proxy calls
+            // through a server to keep your API key secret. This function is provided for completeness,
+            // but will fail from file:// or if the API key is not set or CORS blocks the request.
+            const payload = {
+                contents: [{ parts: [{ text: userText }] }],
+                systemInstruction: {
+                    parts: [{ text: `You are a supportive and friendly art tutor for middle school students. Use only the provided course content when answering.
+Course content:
+${courseContent}` }]
+                }
+            };
+
+            const resp = await fetch(`${API_URL}?key=${API_KEY}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if(!resp.ok){
+                const e = await resp.text();
+                throw new Error('API error: ' + e);
+            }
+            const json = await resp.json();
+            // best-effort extraction of text candidate
+            try {
+                return json.candidates[0].content.parts[0].text || JSON.stringify(json);
+            } catch (err) {
+                return JSON.stringify(json);
+            }
+        }
+
+        async function sendMessage(){
+            const text = userInput.value.trim();
+            if(!text) return;
+            addMessage(text, 'user');
+            userInput.value = '';
+            loadingIndicator.style.display = 'block';
+
+            try {
+                if(API_KEY && API_KEY.trim() !== ''){
+                    // Attempt to call Gemini endpoint (will typically require proper hosting/proxy)
+                    const reply = await sendToGemini(text);
+                    addMessage(reply, 'ai');
+                } else {
+                    // local demo responder
+                    const reply = demoResponder(text);
+                    // small artificial delay to feel like a real chat
+                    await new Promise(r => setTimeout(r, 350 + Math.random()*300));
+                    addMessage(reply, 'ai');
+                }
+            } catch (err) {
+                console.error(err);
+                addMessage("Sorry, I couldn't reach the AI endpoint. Try the demo instructions or deploy this file and use a secure backend for your API key.", 'ai');
+            } finally {
+                loadingIndicator.style.display = 'none';
+            }
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') sendMessage();
+        });
+    })();
+    </script>
+</body>
+</html>

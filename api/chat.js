@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 
 const openai = new OpenAI({
-  apiKey: process.env.GEMINI_API_KEY, // your Gemini API key stored securely in Vercel
+  apiKey: process.env.GEMINI_API_KEY, // Your Gemini API key from Vercel
 });
 
 export default async function handler(req, res) {

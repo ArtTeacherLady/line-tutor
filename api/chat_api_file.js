@@ -1,7 +1,8 @@
+// /api/chat.js
 import OpenAI from "openai";
 
 const openai = new OpenAI({
-  apiKey: process.env.GEMINI_API_KEY, // Your Gemini API key stored as an environment variable
+  apiKey: process.env.GEMINI_API_KEY, // Make sure your Vercel env variable matches this EXACTLY
 });
 
 export default async function handler(req, res) {
@@ -12,14 +13,13 @@ export default async function handler(req, res) {
   try {
     const { userMessage } = req.body;
 
+    if (!userMessage || userMessage.trim() === "") {
+      return res.status(400).json({ error: "No message provided" });
+    }
+
     const response = await openai.responses.create({
       model: "gemini-2.5",
-      input: [
-        {
-          role: "user",
-          content: userMessage,
-        },
-      ],
+      input: userMessage, // just the string
     });
 
     const text = response.output_text || "Sorry, I couldn't generate a response.";

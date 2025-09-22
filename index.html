@@ -1,392 +1,171 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Line Module Chatbot</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 2rem;
-        }
-
-        .chat-container {
-            width: 100%;
-            max-width: 600px;
-            height: 80vh;
-            display: flex;
-            flex-direction: column;
-            background-color: #ffffff;
-            border-radius: 1.5rem;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-
-        .chat-header {
-            background-color: #66c6ed;
-            color: #ffffff;
-            padding: 1.5rem;
-            text-align: center;
-            font-size: 1.5rem;
-            font-weight: 700;
-            border-top-left-radius: 1.5rem;
-            border-top-right-radius: 1.5rem;
-        }
-
-        .chat-messages {
-            flex-grow: 1;
-            padding: 1.5rem;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .message {
-            max-width: 85%;
-            padding: 0.75rem 1.25rem;
-            border-radius: 1rem;
-            line-height: 1.5;
-        }
-
-        .user-message {
-            background-color: #d1e0f6;
-            color: #1e293b;
-            align-self: flex-end;
-            border-bottom-right-radius: 0.25rem;
-        }
-
-        .ai-message {
-            background-color: #e5e7eb;
-            color: #1f2937;
-            align-self: flex-start;
-            border-bottom-left-radius: 0.25rem;
-        }
-
-        .chat-input {
-            display: flex;
-            padding: 1rem 1.5rem;
-            gap: 0.75rem;
-            background-color: #f3f4f6;
-        }
-
-        .chat-input input {
-            flex-grow: 1;
-            border: 1px solid #d1d5db;
-            border-radius: 9999px;
-            padding: 0.75rem 1.25rem;
-            font-size: 1rem;
-        }
-
-        .chat-input button {
-            background-color: #66c6ed;
-            color: #ffffff;
-            border-radius: 9999px;
-            padding: 0.75rem 1.5rem;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: background-color 0.2s;
-        }
-
-        .chat-input button:hover {
-            background-color: #3b82f6;
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.5;
-            }
-        }
-
-        .loading-dots span {
-            animation: pulse 1.5s infinite;
-        }
-
-        .loading-dots span:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .loading-dots span:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Line Module Chatbot</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f3f4f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    .chat-container {
+      width: 100%;
+      max-width: 600px;
+      height: 80vh;
+      display: flex;
+      flex-direction: column;
+      background-color: #ffffff;
+      border-radius: 1.5rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+    .chat-header {
+      background-color: #66c6ed;
+      color: #ffffff;
+      padding: 1.5rem;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: 700;
+      border-top-left-radius: 1.5rem;
+      border-top-right-radius: 1.5rem;
+    }
+    .chat-messages {
+      flex-grow: 1;
+      padding: 1.5rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .message {
+      max-width: 85%;
+      padding: 0.75rem 1.25rem;
+      border-radius: 1rem;
+      line-height: 1.5;
+    }
+    .user-message {
+      background-color: #d1e0f6;
+      color: #1e293b;
+      align-self: flex-end;
+      border-bottom-right-radius: 0.25rem;
+    }
+    .ai-message {
+      background-color: #e5e7eb;
+      color: #1f2937;
+      align-self: flex-start;
+      border-bottom-left-radius: 0.25rem;
+    }
+    .chat-input {
+      display: flex;
+      padding: 1rem 1.5rem;
+      gap: 0.75rem;
+      background-color: #f3f4f6;
+    }
+    .chat-input input {
+      flex-grow: 1;
+      border: 1px solid #d1d5db;
+      border-radius: 9999px;
+      padding: 0.75rem 1.25rem;
+      font-size: 1rem;
+    }
+    .chat-input button {
+      background-color: #66c6ed;
+      color: #ffffff;
+      border-radius: 9999px;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+    .chat-input button:hover {
+      background-color: #3b82f6;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .loading-dots span {
+      animation: pulse 1.5s infinite;
+    }
+    .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+    .hidden { display: none; }
+  </style>
 </head>
 <body>
-    <div class="chat-container">
-        <div class="chat-header">
-            Line Module Art Tutor
-        </div>
-        <div class="chat-messages" id="chatMessages">
-            <div class="message ai-message">
-                Hello! I'm here to help you with the Line Module. Just let me know what you need help with, like the Line Rug project or the quiz.
-            </div>
-        </div>
-        <div class="chat-input">
-            <input type="text" id="userInput" placeholder="Ask a question..." class="focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <button id="sendBtn">Send</button>
-        </div>
-        <div id="loadingIndicator" class="hidden text-center text-gray-500 p-2">
-            <span class="loading-dots">
-                <span class="text-3xl text-blue-500">.</span>
-                <span class="text-3xl text-blue-500">.</span>
-                <span class="text-3xl text-blue-500">.</span>
-            </span>
-        </div>
+  <div class="chat-container">
+    <div class="chat-header">Line Module Art Tutor</div>
+    <div class="chat-messages" id="chatMessages">
+      <div class="message ai-message">
+        Hello! I'm here to help you with the Line Module. Just ask me anything about the Line Rug project or the quiz.
+      </div>
     </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const userInput = document.getElementById('userInput');
-            const sendBtn = document.getElementById('sendBtn');
-            const chatMessages = document.getElementById('chatMessages');
-            const loadingIndicator = document.getElementById('loadingIndicator');
+    <div class="chat-input">
+      <input type="text" id="userInput" placeholder="Ask a question..." class="focus:outline-none focus:ring-2 focus:ring-blue-500">
+      <button id="sendBtn">Send</button>
+    </div>
+    <div id="loadingIndicator" class="hidden text-center text-gray-500 p-2">
+      <span class="loading-dots">
+        <span class="text-3xl text-blue-500">.</span>
+        <span class="text-3xl text-blue-500">.</span>
+        <span class="text-3xl text-blue-500">.</span>
+      </span>
+    </div>
+  </div>
 
-            const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent';
-            const API_KEY = '';
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const userInput = document.getElementById('userInput');
+      const sendBtn = document.getElementById('sendBtn');
+      const chatMessages = document.getElementById('chatMessages');
+      const loadingIndicator = document.getElementById('loadingIndicator');
 
-            // --- IMPORTANT: PLACE YOUR COURSE CONTENT HERE ---
-            const courseContent = `
-                Module Overview: The Element of LINE
+      function addMessageToChat(text, sender) {
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message', sender === 'user' ? 'user-message' : 'ai-message');
+        messageDiv.innerText = text;
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
 
-                We need to learn the Elements of Art and how to use them effectively. We will begin with the most basic Element, LINE, and learn some vocabulary words. The project will involve using basic materials to gain practice.
+      async function sendMessage() {
+        const userText = userInput.value.trim();
+        if (!userText) return;
 
-                Learning Intention & Success Criteria:
-                - I will practice perseverance and good media habits by completing my assignments.
-                - To build critical-thinking and problem-solving skills in creating works of art using the elements of art.
-                - To demonstrate basic vocabulary, techniques, skills, and craftsmanship.
-                - To generate and investigate ideas for creating and refining art.
-                - To work independently and collaboratively, displaying positive studio and ethical behavior.
-                - To develop ideas considering the needs of diverse populations, media, and technology.
+        addMessageToChat(userText, 'user');
+        userInput.value = '';
+        loadingIndicator.classList.remove('hidden');
 
-                Essential Questions:
-                - Can I use the Element of Art Line to make a piece of art?
-                - Can I use various types of lines in my artwork?
-                - Can I use my technology daily to access lessons and use my synchronous time correctly and safely?
+        try {
+          const response = await fetch("/api/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userMessage: userText }),
+          });
 
-                Why it matters:
-                Every piece of art is based on the Elements and Principles of Art. We need to learn them to use them effectively.
+          if (!response.ok) throw new Error("API request failed");
 
-                How your teacher knows you can do it:
-                Your teacher knows you can do it if you have successfully submitted your work to the module.
+          const data = await response.json();
+          addMessageToChat(data.reply, 'ai');
+        } catch (err) {
+          console.error(err);
+          addMessageToChat("Sorry, I'm having trouble connecting right now.", 'ai');
+        } finally {
+          loadingIndicator.classList.add('hidden');
+        }
+      }
 
-                To Do List:
-                1. Discover: Line Presentation.
-                2. Quiz: Answer Quiz questions (10 pts).
-                3. Submit: Line project (50 pts).
-                4. Discuss: Artist Statement (15 pts).
-
-                Line Rug Project Description:
-                Line is the most basic Element of Art. Line in an artwork can be used in many different ways to suggest shape, pattern, form, structure, growth, depth, distance, rhythm, movement, and a range of emotions. To be able to sketch, we first need to learn and practice different types of lines.
-
-                Video Transcripts & Instructions:
-                A video shows how to create the Line Rug project. The project is a digital art piece that looks like a colorful paper rug.
-                Objectives:
-                - Demonstrate a variety of lines.
-                - Organize designs to create an interesting composition.
-                - Explore the use of digital materials and tools.
-                - Compare and contrast work with textile designs from around the world.
-                - You can create this project traditionally (paper and drawing materials) or digitally (using Sketchpad).
-
-                Steps for the Digital Line Rug Assignment on Sketchpad (sketch.io):
-                1.  **Set up your canvas**:
-                    - Go to sketch.io.
-                    - Choose 'New' and set the dimensions to 11 inches by 8.5 inches to create a landscape-style paper.
-                2.  **Create your lines**:
-                    - Choose a tool like a pen or brush.
-                    - Set your color and line width.
-                    - Practice creating various types of lines as shown in the video, such as zigzag, wavy, scalloped, dotted, dashed, long, short, squiggly, or spiral lines.
-                    - Use the **Shift** key while dragging your mouse to create perfectly straight lines.
-                3.  **Paint between the lines**:
-                    - Use the brush tool to fill the white spaces between your lines.
-                    - Adjust the **transparency** of your brush to create a lighter wash of color.
-                    - Use a single, continuous motion to color in each section.
-                4.  **Organize your layers**:
-                    - Select all the paint layers you just created (hold the Shift key to select multiple).
-                    - Drag these layers down in the layer stack so they are behind your line drawings. This makes the lines stand out.
-                5.  **Create a frame**:
-                    - Use a tool (like the pen or brush) with a solid color and a thick line width.
-                    - Start in one corner of your canvas, hold down the Shift key, and drag to the opposite corner to create a straight line for your frame. Repeat for all four sides.
-                6.  **Export and Submit**:
-                    - Go to the Export menu.
-                    - Download the image as a JPEG.
-                    - Follow the instructions provided to submit your file on Canvas, using the Google Drive tool (if on a Chromebook) or the image upload tool.
-                
-                Transcript for taking an image with a Chromebook camera:
-                - How to take a photo using your webcam on your Chromebook.
-                - Go to the bottom left-hand corner where it says 'launcher'.
-                - Type in 'camera'.
-                - Click on the camera icon.
-                - Place your artwork in front of the camera.
-                - Use the photograph button to take a picture.
-                - It might be helpful to have a friend hold the artwork.
-                - The image will appear in the bottom corner.
-                - Rename the file so you can find it later, for example: 'YourFirstName-LineDrawing'.
-                - The file will be saved.
-
-                Transcript for submitting an assignment by embedding a photo:
-                - How to turn in an assignment by embedding a photo.
-                - Click on 'start assignment' or 'start survey'.
-                - A text box will pop up. Scroll down to find the submission box.
-                - Click on the photo icon.
-                - Click on the middle where it says 'upload image', 'drag and drop', or 'click to browse your computer'.
-                - Select the file that goes with this assignment.
-                - Click 'submit'.
-                - Wait for it to load.
-                - Scroll down to 'submit assignment'.
-
-                Transcript for submitting an assignment by recording a video:
-                - How to turn in an assignment by recording a video.
-                - Before you record, make sure you've clicked on 'start assignment' or 'start survey'.
-                - If you want to center the video, you can hit the three dots on the right-hand side.
-                - The most important step is to hit the blue button in the right-hand corner. It will say 'reply' for discussions or 'submit' for assignments.
-                - After you click that, your work has been submitted.
-                - You can check if it's submitted by looking at the calendar feature on the left side of your canvas. If the assignment has a line through it, it's been submitted.
-
-                Line Quiz Video Transcript:
-                - 'Lines are all around you and me LONG or SHORT, THICK or THIN they’ll be'
-                - 'CURVY, WAVY, BROKEN, FANCY, FREE! Look around how many can you see?'
-                - A **HORIZONTAL** line you should know: From left to right or right to left it goes. It seems calm and soothing and really slow.
-                - A **VERTICAL** line you should know: Up and down or down and up it goes. Standing proud and strong and really stable.
-                - A **DIAGONAL** line you should know: It goes across, from low to high or high to low. It has action it has movement; it is on the go!
-                - Other types of lines you can know: Like **GEOMETRIC**, **ORGANIC**, and **GESTURAL**. Or **ZIGZAGS** or **SPIRALS** that grow and grow.
-                
-                Line Presentation Transcript:
-                - What is line? The artist Paul Klee said, a line is a dot that went for a walk. And that's exactly what a line is. A dot that moves through space.
-                - You know all different kinds of lines. Thick, thin, curvy, wavy, zigzag, dashed, dotted, rough, smooth, light, and dark.
-                - Lines can also go any direction. There are three different ways we describe the direction of lines.
-                - Lines that go up and down are called vertical lines. Lines that go side to side are called horizontal lines. Lines that go at an angle, anywhere between vertical and horizontal, are called diagonal lines.
-                - Lines can be used to create shapes, make patterns, show form and depth and distance and movement.
-                - How do artists use line? They use line in almost every artwork they create. Many artists begin by drawing an outline. Sometimes they use what we call contour line to show the form and the details in their subject.
-                - Lines can also be used to create value. When an artist wants a simple type of way to shade, they often use hatching or crosshatching to create darker values.
-                - Hatching is using parallel lines. When the lines are farther apart, then they create lighter value. When the lines are closer together, they create a darker value.
-                - Crosshatching is using parallel lines going in different directions. The more the lines cross over each other, the darker the value becomes.
-                - Famous artists have used line in many different ways. From Bridget Riley's optical illusions to Keith Haring's bold figures to Jackson Pollock's splashes, drips, and drops.
-                - Lines are a part of almost everything you see. Think about how you might use line in a new way next time you begin an artwork.
-            `;
-
-            function addMessageToChat(text, sender) {
-                const messageDiv = document.createElement('div');
-                messageDiv.classList.add('message', sender === 'user' ? 'user-message' : 'ai-message');
-                messageDiv.innerText = text;
-                chatMessages.appendChild(messageDiv);
-                // Scroll to the bottom of the chat
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            }
-
-            async function sendMessage() {
-                const userText = userInput.value.trim();
-                if (userText === '') return;
-
-                addMessageToChat(userText, 'user');
-                userInput.value = '';
-                loadingIndicator.classList.remove('hidden');
-
-                try {
-                    const systemPrompt = `You are a supportive and friendly art tutor for middle school students. Your job is to help them understand the Element of Line using the class materials provided. Keep your language simple and fun, like you're talking to a 6th grader.
-
-Here is the lesson content for this assignment (video demo, notes, standards, and teacher guidance):
-
-"${courseContent}"
-
-Instructions for student interaction:
-- If a student asks how to do the assignment, first ask them: "Will you be working digitally or traditionally (on paper)?"
-- If the student replies with "digitally" or "on a computer" to a question about how to do the assignment, respond with the numbered steps for the digital Line Rug assignment on Sketchpad.
-- If the student replies with "on paper" or "traditionally" to a question about how to do the assignment, respond with the materials and the steps. Do not ask for confirmation. The response should be: "Awesome! You can use any paper and some drawing tools you have at home, like pencils, pens, crayons, or markers, and there should be lots of colors. The goal is to show me a variety of lines.
-    
-    Here are the steps to create your Line Rug:
-    
-    1. **Draw the rug outline:** Start by drawing a large rectangle or any shape you want to be the outside of your rug.
-    2. **Create different lines inside:** Just like in the video, fill the inside of your rug with different types of lines. Try using wavy, zigzag, dotted, dashed, or even squiggly lines.
-    3. **Color it in:** Use your markers or crayons to fill in the spaces between the lines. Try using different colors to make it look like a colorful rug!
-    4. **Add a border:** To finish it off, you can draw a thick border around the edge of your rug using a solid line.
-    
-    Remember, the most important thing is to have fun and show off all the different kinds of lines you can make! Let me know if you have any more questions while you're working on it!"
-- If the student asks about how to submit their work, first ask them: "To help me find the right instructions, please reply by saying 'I made this on paper' or 'I made this digitally.'"
-- If the student replies with "I made this on paper" or a similar phrase, ask a new question: "Great! And to help me give you the best steps, can you tell me what kind of device you'll be using to take a picture of your artwork? (e.g., phone, tablet, computer)"
-    - If the student replies with "phone" or "tablet" to this new question, give the following instructions: "Awesome! Here’s how you can submit your artwork from your phone or tablet: First, use your device’s camera to take a clear picture of your Line Rug. Then, open the Canvas app (or go to the website), click the **'start assignment'** button, and look for the **photo icon** to upload your picture. Once it's loaded, click **'submit assignment'**."
-    - If the student replies with "computer" or "laptop" to this new question, give the following instructions: "Great! Here’s how you can submit your artwork from your computer:
-    
-    1. First, use your computer's webcam or a connected camera to take a clear picture of your Line Rug.
-    2. Then, go to the Canvas website and click the **'start assignment'** or **'start survey'** button.
-    3. A text box will pop up. Scroll down until you see the submission box.
-    4. Click on the **photo icon** (it usually looks like a little mountain or landscape) to upload your picture.
-    5. You might see options like **'upload image'** or **'click to browse your computer'**. Choose that to find the picture you just took.
-    6. Once it's loaded, click the final **'submit assignment'** button.
-    
-    You've got this! Let me know if you run into any questions while you're submitting it."
-- If the student replies with "I made this digitally" or a similar phrase, respond with: "Awesome! You have a couple of great options for submitting your digital art: taking a screenshot or exporting it as a file. The easiest way is to export it. Just go to the 'Export' button in Sketchpad and download it as a JPEG or PNG. You can also take a screenshot of your finished rug. If you'd like to do that, please tell me what kind of device you are using (e.g., phone, tablet, computer)."
-- If the student replies with "computer" or "laptop" after a digital submission inquiry, provide these steps: "Okay, here are the steps to submit your art from a computer:
-    1. **Take a screenshot:**
-        * On Windows, you can press the **Windows key + Shift + S** to select the area you want to save.
-        * On a Mac, you can press **Command + Shift + 4** to select the area you want to save.
-        * On a Chromebook, you can press **Ctrl + Show windows key** (the key that looks like a rectangle with two lines) to take a full screenshot, or **Ctrl + Shift + Show windows key** to select a specific area to screenshot.
-    2. **Go to Canvas:** Once you have the screenshot saved, go to the Canvas website and click the **'start assignment'** or **'start survey'** button.
-    3. **Upload the image:** Scroll down to the submission box and click the **photo icon** to upload your screenshot.
-    4. **Submit:** Click the final **'submit assignment'** button. You've got this!"
-- If the student replies with "phone" or "tablet" after a digital submission inquiry, provide these steps: "Okay, here are the steps to submit your art from a phone or tablet:
-    1. **Take a screenshot:** On most phones, you can quickly press the **power button and the volume-down button** at the same time. On an iPad, it's usually the **top button and the volume-up button**.
-    2. **Go to Canvas:** Open the Canvas app or website, click the **'start assignment'** button, and then look for the **photo icon** to upload your screenshot.
-    3. **Submit:** Once it's loaded, click the **'submit assignment'** button. You've got this!"
-- If the student asks for direct answers to the quiz, do not provide them. Instead, ask a question that guides them to find the answer themselves, referencing the course content.
-- If the student asks about a topic that is not related to this art lesson (like math, science, or general questions), politely redirect them. Respond with something like, "I'm an art tutor, so I can only help with our lesson about lines. What questions do you have about the Line Rug project or the videos?""
-- Always use the concepts and vocabulary from the provided lesson materials.`;
-
-                    const payload = {
-                        contents: [{
-                            parts: [{
-                                text: userText
-                            }]
-                        }],
-                        systemInstruction: {
-                            parts: [{
-                                text: systemPrompt
-                            }]
-                        },
-                    };
-
-                    let response = await fetch(`${API_URL}?key=${API_KEY}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.error.message || 'API request failed');
-                    }
-
-                    const result = await response.json();
-                    const aiText = result.candidates[0].content.parts[0].text;
-                    addMessageToChat(aiText, 'ai');
-
-                } catch (error) {
-                    console.error('Error:', error);
-                    addMessageToChat("Sorry, I'm having trouble connecting right now. Please try again later.", 'ai');
-                } finally {
-                    loadingIndicator.classList.add('hidden');
-                }
-            }
-
-            sendBtn.addEventListener('click', sendMessage);
-
-            userInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    sendMessage();
-                }
-            });
-        });
-    </script>
+      sendBtn.addEventListener('click', sendMessage);
+      userInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
+    });
+  </script>
 </body>
 </html>
